@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة المتاهة</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #87CEFA; /* لون الخلفية */
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+            color: white;
+        }
+
+        #maze {
+            display: grid;
+            grid-template-columns: repeat(15, 40px); /* عدد الأعمدة */
+            margin: 20px auto;
+            width: 600px;
+            height: 480px;
+            border: 2px solid black; /* إطار المتاهة */
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            box-sizing: border-box; /* إصلاح الفراغات */
+        }
+
+        .wall {
+            background-color: black;
+        }
+
+        .start {
+            background-color: green;
+        }
+
+        .end {
+            background-color: red;
+        }
+
+        .player {
+            background-color: blue;
+            border-radius: 50%;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .names {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-size: 1.2rem;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة المتاهة</h1>
+    <div id="maze"></div>
+    <div id="status">استخدم الأسهم للوصول إلى النهاية!</div>
+    <div class="names">إعداد: ليان عقيل، دلع مانع، فاطمة محمد</div>
+
+    <script>
+        // إعداد المتاهة
+        const mazeLayout = [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
+            [1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1],
+        ];
+
+        const maze = document.getElementById("maze");
+        const statusText = document.getElementById("status");
+        let playerPosition = { x: 1, y: 1 }; // موقع اللاعب
+
+        // رسم المتاهة
+        function drawMaze() {
+            maze.innerHTML = "";
+            mazeLayout.forEach((row, y) => {
+                row.forEach((cell, x) => {
+                    const div = document.createElement("div");
+                    div.classList.add("cell");
+
+                    if (cell === 1) {
+                        div.classList.add("wall");
+                    } else if (cell === 2) {
+                        div.classList.add("end");
+                    } else if (x === playerPosition.x && y === playerPosition.y) {
+                        div.classList.add("player");
+                    } else if (x === 1 && y === 1) {
+                        div.classList.add("start");
+                    }
+
+                    maze.appendChild(div);
+                });
+            });
+        }
+
+        // تحريك اللاعب
+        function movePlayer(dx, dy) {
+            const newX = playerPosition.x + dx;
+            const newY = playerPosition.y + dy;
+
+            // التحقق من عدم الاصطدام بالجدران
+            if (
+                newX >= 0 &&
+                newX < 15 &&
+                newY >= 0 &&
+                newY < 12 &&
+                mazeLayout[newY][newX] !== 1
+            ) {
+                playerPosition.x = newX;
+                playerPosition.y = newY;
+
+                // التحقق من الفوز
+                if (mazeLayout[newY][newX] === 2) {
+                    statusText.textContent = "مبروك! لقد فزت!";
+                    document.removeEventListener("keydown", handleKeydown);
+                }
+            }
+
+            drawMaze();
+        }
+
+        // التعامل مع الضغط على لوحة المفاتيح
+        function handleKeydown(e) {
+            switch (e.key) {
+                case "ArrowUp":
+                    movePlayer(0, -1);
+                    break;
+                case "ArrowDown":
+                    movePlayer(0, 1);
+                    break;
+                case "ArrowLeft":
+                    movePlayer(-1, 0);
+                    break;
+                case "ArrowRight":
+                    movePlayer(1, 0);
+                    break;
+            }
+        }
+
+        document.addEventListener("keydown", handleKeydown);
+
+        // بدء اللعبة
+        drawMaze();
+    </script>
+</body>
+</html>
+
+
